@@ -3,24 +3,46 @@ from django.shortcuts import render, redirect
 
 from .models import *
 
-menu = ['О сайте', 'Добавить статью', 'Обратная связь', 'Войти']
+menu = [
+    {'title': 'О сайте', 'url_name': 'about'},
+    {'title': 'Добавить статью', 'url_name': 'add_page'},
+    {'title': 'Обратная связь', 'url_name': 'contact'},
+    {'title': 'Войти', 'url_name': 'login'},
+]
 
 
 def index(request):
     posts = Women.objects.all()
-    return render(request, 'women/index.html', {'posts': posts, 'menu': menu, 'title': 'Main page'})
+    data = {'posts': posts, 'menu': menu, 'title': 'Main page'}
+    return render(request, 'women/index.html', context=data)
 
 
 def about(request):
     return render(request, 'women/about.html', {'menu': menu, 'title': 'About us'})
 
 
-def categories(request, catid):
-    if request.GET:
-        print(request.GET)
-    if catid > 99:
-        return redirect('home', permanent=True)
-    return HttpResponse(f'<h2>Category {catid}</h2>')
+def add_page(request):
+    ...
+
+
+def contact(request):
+    ...
+
+
+def login(request):
+    ...
+
+
+def show_post(request, post_id):
+    return HttpResponse(f'{post_id=}')
+
+
+# def categories(request, catid):
+#     if request.GET:
+#         print(request.GET)
+#     if catid > 99:
+#         return redirect('home', permanent=True)
+#     return HttpResponse(f'<h2>Category {catid}</h2>')
 
 
 def pageNotFound(request, exception):
