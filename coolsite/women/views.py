@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseNotFound  # Http404 to raise 404
+from django.http import HttpResponse, HttpResponseNotFound, Http404  # Http404 to raise 404
 from django.shortcuts import render, redirect
 
 from .models import *
@@ -13,7 +13,12 @@ menu = [
 
 def index(request):
     posts = Women.objects.all()
-    data = {'posts': posts, 'menu': menu, 'title': 'Main page'}
+    cats = Category.objects.all()
+    data = {'posts': posts,
+            'cats': cats,
+            'cat_selected': 0,
+            'menu': menu,
+            'title': 'Main page'}
     return render(request, 'women/index.html', context=data)
 
 
@@ -35,6 +40,20 @@ def login(request):
 
 def show_post(request, post_id):
     return HttpResponse(f'{post_id=}')
+
+
+def show_category(request, cat_id):
+    posts = Women.objects.filter(cat_id=cat_id)
+    cats = Category.objects.all()
+    data = {'posts': posts,
+            'cats': cats,
+            'cat_selected': cat_id,
+            'menu': menu,
+            'title': 'Отображение по рубрикам'}
+
+    if len(posts) == 0:
+        raise Http404
+    return render(request, 'women/index.html', context=data)
 
 
 # def categories(request, catid):
