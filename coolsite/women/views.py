@@ -1,5 +1,5 @@
 from django.http import HttpResponseNotFound, Http404  # Http404 to raise 404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from .models import *
 
@@ -36,11 +36,13 @@ def login(request):
     ...
 
 
-def show_post(request, post_id):
-    post = Women.objects.get(pk=post_id)
+def show_post(request, post_slug):
+    post = get_object_or_404(Women, slug=post_slug)
     data = {
-        'title': f'{post.title}',
-        'post': post
+        'title': post.title,
+        'post': post,
+        'menu': menu,
+        'cat_selected': post.cat_id
     }
     return render(request, 'women/post.html', context=data)
 
