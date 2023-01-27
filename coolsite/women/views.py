@@ -13,9 +13,7 @@ menu = [
 
 def index(request):
     posts = Women.objects.all()
-    cats = Category.objects.all()
     data = {'posts': posts,
-            'cats': cats,
             'cat_selected': 0,
             'menu': menu,
             'title': 'Main page'}
@@ -49,9 +47,7 @@ def show_post(request, post_id):
 
 def show_category(request, cat_id):
     posts = Women.objects.filter(cat_id=cat_id)
-    cats = Category.objects.all()
     data = {'posts': posts,
-            'cats': cats,
             'cat_selected': cat_id,
             'menu': menu,
             'title': 'Отображение по рубрикам'}
