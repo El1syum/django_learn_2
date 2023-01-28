@@ -1,6 +1,7 @@
 from django.http import HttpResponseNotFound, Http404  # Http404 to raise 404
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView
 
 from .forms import *
 from .models import *
@@ -42,21 +43,33 @@ def about(request):
     return render(request, 'women/about.html', {'menu': menu, 'title': 'About us'})
 
 
-def add_page(request):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
+class AddPage(CreateView):
+    form_class = AddPostForm
+    template_name = 'women/addpage.html'
+    success_url = reverse_lazy('home')
 
-    else:
-        form = AddPostForm()
-    data = {
-        'menu': menu,
-        'title': 'Добавление статьи',
-        'form': form
-    }
-    return render(request, 'women/addpage.html', data)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = 'Добавление статьи'
+        return context
+
+
+# def add_page(request):
+#     if request.method == 'POST':
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('home')
+#
+#     else:
+#         form = AddPostForm()
+#     data = {
+#         'menu': menu,
+#         'title': 'Добавление статьи',
+#         'form': form
+#     }
+#     return render(request, 'women/addpage.html', data)
 
 
 def contact(request):
@@ -67,15 +80,28 @@ def login(request):
     ...
 
 
-def show_post(request, post_slug):
-    post = get_object_or_404(Women, slug=post_slug)
-    data = {
-        'title': post.title,
-        'post': post,
-        'menu': menu,
-        'cat_selected': post.cat_id
-    }
-    return render(request, 'women/post.html', context=data)
+class ShowPost(DetailView):
+    model = Women
+    template_name = 'women/post.html'
+    slug_url_kwarg = 'post_slug'
+    context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = context['post']
+        context['cat_selected'] = context['post'].cat_id
+        return context
+
+# def show_post(request, post_slug):
+#     post = get_object_or_404(Women, slug=post_slug)
+#     data = {
+#         'title': post.title,
+#         'post': post,
+#         'menu': menu,
+#         'cat_selected': post.cat_id
+#     }
+#     return render(request, 'women/post.html', context=data)
 
 
 class WomenCategory(ListView):
