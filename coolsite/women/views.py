@@ -1,5 +1,6 @@
 from django.http import HttpResponseNotFound, Http404  # Http404 to raise 404
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView, DetailView
 
 from .forms import *
 from .models import *
@@ -12,13 +13,29 @@ menu = [
 ]
 
 
-def index(request):
-    posts = Women.objects.all()
-    data = {'posts': posts,
-            'cat_selected': 0,
-            'menu': menu,
-            'title': 'Main page'}
-    return render(request, 'women/index.html', context=data)
+class WomenHome(ListView):
+    model = Women
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = 'Главная страница'
+        context['cat_selected'] = 0
+        return context
+
+    def get_queryset(self):
+        return Women.objects.filter(is_published=True)
+
+
+# def index(request):
+#     posts = Women.objects.all()
+#     data = {'posts': posts,
+#             'cat_selected': 0,
+#             'menu': menu,
+#             'title': 'Main page'}
+#     return render(request, 'women/index.html', context=data)
 
 
 def about(request):
@@ -61,17 +78,35 @@ def show_post(request, post_slug):
     return render(request, 'women/post.html', context=data)
 
 
-def show_category(request, cat_slug):
-    cat = get_object_or_404(Category, slug=cat_slug)
-    posts = Women.objects.filter(cat__slug=cat_slug)
-    data = {'posts': posts,
-            'cat_selected': cat.pk,
-            'menu': menu,
-            'title': 'Отображение по рубрикам'}
+class WomenCategory(ListView):
+    model = Women
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
 
-    if len(posts) == 0:
-        raise Http404
-    return render(request, 'women/index.html', context=data)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = f"Категория - {context['posts'][0].cat}"
+        context['cat_selected'] = context['posts'][0].cat_id
+
+        return context
+
+    def get_queryset(self):
+        return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+
+
+# def show_category(request, cat_slug):
+#     cat = get_object_or_404(Category, slug=cat_slug)
+#     posts = Women.objects.filter(cat__slug=cat_slug)
+#     data = {'posts': posts,
+#             'cat_selected': cat.pk,
+#             'menu': menu,
+#             'title': 'Отображение по рубрикам'}
+#
+#     if len(posts) == 0:
+#         raise Http404
+#     return render(request, 'women/index.html', context=data)
 
 
 # def categories(request, catid):
