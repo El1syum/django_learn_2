@@ -1,3 +1,5 @@
+from django.db.models import Count
+
 from .models import *
 
 menu = [
@@ -11,8 +13,17 @@ menu = [
 class DataMixin:
     def get_user_context(self, **kwargs):
         context = kwargs
-        cats = Category.objects.all()
-        context['menu'] = menu
+        cats = Category.objects.annotate(Count('women'))
+
+        user_menu = menu.copy()
+        if not self.request.user.is_authenticated:
+            user_menu.pop(1)
+        else:
+            user_menu.pop()
+            user_menu.append({'title': 'Аккаунт', 'url_name': 'login'})
+
+        context['menu'] = user_menu
+
         context['cats'] = cats
         if 'cat_selected' not in context:
             context['cat_selected'] = 0
