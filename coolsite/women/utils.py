@@ -6,12 +6,11 @@ menu = [
     {'title': 'О сайте', 'url_name': 'about'},
     {'title': 'Добавить статью', 'url_name': 'add_page'},
     {'title': 'Обратная связь', 'url_name': 'contact'},
-    {'title': 'Войти', 'url_name': 'login'},
 ]
 
 
 class DataMixin:
-    paginate_by = 2
+    paginate_by = 5
 
     def get_user_context(self, **kwargs):
         context = kwargs
@@ -20,9 +19,6 @@ class DataMixin:
         user_menu = menu.copy()
         if not self.request.user.is_authenticated:
             user_menu.pop(1)
-        else:
-            user_menu.pop()
-            user_menu.append({'title': 'Аккаунт', 'url_name': 'login'})
 
         context['menu'] = user_menu
 
