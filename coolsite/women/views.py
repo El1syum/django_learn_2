@@ -1,15 +1,12 @@
 from django.contrib.auth import logout, login
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.views import LoginView
-from django.core.paginator import Paginator
-from django.http import HttpResponseNotFound  # Http404 to raise 404
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.http import HttpResponseNotFound  # Http404 to raise 404
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, FormView, TemplateView
 
 from .forms import *
-from .models import *
 from .utils import *
 
 
@@ -27,23 +24,22 @@ class WomenHome(DataMixin, ListView):
         return Women.objects.filter(is_published=True).select_related('cat')
 
 
-# class AboutPage(DataMixin, ListView):
-#     model = Women
-#     template_name = 'women/about.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         c_def = self.get_user_context(title='О нас')
-#         return context | c_def
+class AboutPage(DataMixin, TemplateView):
+    template_name = 'women/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='О нас')
+        return context | c_def
 
 
-def about(request):
-    # contact_list = Women.objects.all()
-    # paginator = Paginator(contact_list, 3)
-    #
-    # page_number = request.GET.get('page')
-    # page_obj = paginator.get_page(page_number)
-    return render(request, 'women/about.html', {'menu': menu, 'title': 'О сайте'})
+# def about(request):
+#     # contact_list = Women.objects.all()
+#     # paginator = Paginator(contact_list, 3)
+#     #
+#     # page_number = request.GET.get('page')
+#     # page_obj = paginator.get_page(page_number)
+#     return render(request, 'women/about.html', {'menu': menu, 'title': 'О сайте'})
 
 
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
@@ -59,8 +55,19 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return context | c_def
 
 
-def contact(request):
-    ...
+class ContactFormView(DataMixin, FormView):
+    form_class = ContactForm
+    template_name = 'women/contact.html'
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Обратная связь')
+        return context | c_def
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return redirect('home')
 
 
 class LoginPage(DataMixin, LoginView):

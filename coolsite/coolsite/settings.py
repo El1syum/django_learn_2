@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
+    'captcha',
     'women.apps.WomenConfig',
 ]
 
@@ -130,9 +131,17 @@ INTERNAL_IPS = [
 ]
 
 CACHES = {
-     'default': {
-         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-         'LOCATION': os.path.join(BASE_DIR, 'coolsite_cache'),
-     }
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'coolsite_cache'),
+    }
 }
 
+# CAPTCHA SETTINGS
+
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null',)
+CAPTCHA_LETTER_ROTATION = None
+CAPTCHA_IMAGE_SIZE = (100, 50)
+CAPTCHA_FOREGROUND_COLOR = 'black'
+CAPTCHA_MATH_CHALLENGE_OPERATOR = '+'
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
